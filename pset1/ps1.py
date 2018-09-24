@@ -93,16 +93,26 @@ def brute_force_cow_transport(cows,limit=10):
     trips
     """
     c_cows = cows.copy()
-    trip_list = []
-    for key in (get_partitions(c_cows)):
-        print(key)
-        subtotal = []
-        for k in key:
-            subtotal.append(c_cows[k])
-        trip_wt = sum(subtotal)
-        if trip_wt <= limit:
-            trip_list.append(key)
-    return trip_list
+    good_trips = []
+#    test_count = 0
+    for trip_list in (get_partitions(c_cows)):
+#        test_count += 1
+        print('Trip list: ', trip_list)
+        heavy_trip = False
+        for trip in trip_list:
+            trip_wt = 0
+            for cow in range(len(trip)):
+                trip_wt += c_cows[trip[cow]]
+            print('last cow in trip: ', trip[cow], 'total trip wt: ', trip_wt)
+            if trip_wt > limit:
+                print('Trip too heavy')
+                heavy_trip = True
+                continue
+        if heavy_trip == False:
+            good_trips.append(trip_list)
+#        if test_count == 50:
+#            break
+    return good_trips
 
 # Problem 3
 def compare_cow_transport_algorithms():
@@ -127,8 +137,8 @@ Here is some test data for you to see the results of your algorithms with.
 Do not submit this along with any of your answers. Uncomment the last two
 lines to print the result of your problem.
 """
-
 cows = load_cows("ps1_cow_data.txt")
+'''
 limit = 10
 print(cows)
 print(greedy_cow_transport(cows, limit))
@@ -137,7 +147,8 @@ cows = load_cows("ps1_cow_data2.txt")
 limit = 100
 print(cows)
 print(greedy_cow_transport(cows, limit))
+'''
 
-brute_force_cow_transport(cows)
+print(brute_force_cow_transport(cows))
 
 
