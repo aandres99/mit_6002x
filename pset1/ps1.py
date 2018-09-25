@@ -111,7 +111,7 @@ def brute_force_cow_transport(cows,limit=10):
                 continue
         if heavy_trip == False:
             good_trips.append(trip_list)
-        if test_count == 100:
+        if test_count == 200:
             break
     # find trips that have the minimum number of trips
     best_trips = []
