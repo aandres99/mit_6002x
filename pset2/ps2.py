@@ -291,13 +291,16 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
     assert isinstance(min_coverage, float) & (min_coverage > 0)
     assert isinstance(num_trials, int) & (num_trials > 0)
 
-    room = RectangularRoom(width, height)
-    min_coverage_tiles = int(min_coverage * room.getNumTiles())
-    print('room size {}'.format(room.getNumTiles()))
-    print('clean min of {} tiles'.format(min_coverage_tiles))
+    if num_trials == 1:
+        animate = True
+    else:
+        animate = False
 
     def clean_room():
         # place room inside clean room in order to reset
+        if animate:
+            anim = ps2_visualize.RobotVisualization(num_robots, width, height)
+
         room = RectangularRoom(width, height)
         min_coverage_tiles = int(min_coverage * room.getNumTiles())
 
@@ -305,27 +308,36 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
         robots = []
         for i in range(num_robots):
             robots.append(i)
+
         for i in range(len(robots)):
-            # robots[i] = StandardRobot(room, speed)
             robots[i] = robot_type(room, speed)
 
-        clock_ticks = 0
+        if len(robots) == 1:
+            clock_ticks = 1
+        else:
+            clock_ticks = 0
+
         while room.getNumCleanedTiles() < min_coverage_tiles:
             for robot in robots:
                 robot.updatePositionAndClean()
             clock_ticks += 1
+            if animate:
+                anim.update(room, robots)
+        if animate:
+            anim.done()
         return clock_ticks
 
     trials = []
     for i in range(num_trials):
         trials.append(clean_room())
-        print('trial: {}  time: {}'.format(i, trials[-1]))
-    print('avg time {}'.format(sum(trials) / len(trials)))
+        # print('trial: {}  time: {}'.format(i, trials[-1]))
+    avg_clock_ticks = sum(trials) / len(trials)
+    # print('avg time {}'.format(avg_clock_ticks))
+    return avg_clock_ticks
 
 
 # Uncomment this line to see how much your simulation takes on average
-print(runSimulation(1, 1.0, 20, 20, 1.0, 10, StandardRobot))
-print(runSimulation(3, 1.0, 20, 20, 1.0, 10, StandardRobot))
+# print(runSimulation(1, 1.0, 20, 20, 0.75, 5, StandardRobot))
 
 
 # === Problem 5
@@ -341,8 +353,19 @@ class RandomWalkRobot(Robot):
         Move the robot to a new position and mark the tile it is on as having
         been cleaned.
         """
-        raise NotImplementedError
+        self.setRobotDirection(random.randint(0, 360))
+        new_pos = self.pos.getNewPosition(self.getRobotDirection(),
+                                          self.speed)
+        while not self.room.isPositionInRoom(new_pos):
+            self.setRobotDirection(random.randint(0, 360))
+            new_pos = self.pos.getNewPosition(self.getRobotDirection(),
+                                              self.speed)
+        self.setRobotPosition(new_pos)
+        self.room.cleanTileAtPosition(new_pos)
 
+
+# print(runSimulation(3, 1.0, 15, 15, 0.75, 1, RandomWalkRobot))
+# print(runSimulation(3, 1.0, 15, 15, 0.75, 1, StandardRobot))
 
 def showPlot1(title, x_label, y_label):
     """
@@ -395,6 +418,9 @@ def showPlot2(title, x_label, y_label):
 #     plot.
 #
 #       (... your call here ...)
+# showPlot1('Time it Takes 1-10 Robots to Clean 80% Of A Room',
+#          'Number of Robots',
+#          'Timesteps')
 #
 
 #
@@ -403,3 +429,13 @@ def showPlot2(title, x_label, y_label):
 #
 #       (... your call here ...)
 #
+
+if __name__ == '__main__':
+    print(runSimulation(3, 1.0, 15, 15, 0.75, 1, RandomWalkRobot))
+    print(runSimulation(1, 1.0, 15, 15, 0.75, 1, StandardRobot))
+    showPlot1('Time it Takes 1-10 Robots to Clean 80% Of A Room',
+              'Number of Robots',
+              'Timesteps')
+    showPlot2('Percentage of Variously Shaped Rooms That A Robot Cleans',
+              'Aspect Ratio',
+              'Time-steps')
