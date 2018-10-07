@@ -296,49 +296,36 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
     print('room size {}'.format(room.getNumTiles()))
     print('clean min of {} tiles'.format(min_coverage_tiles))
 
-    robot = StandardRobot(room, speed)
-    clock_ticks = 0
-
-    while room.getNumCleanedTiles() < min_coverage_tiles:
-        robot.updatePositionAndClean()
-        clock_ticks += 1
-        print('Still cleaning...{}'. format(clock_ticks))
-
-    return clock_ticks
-'''
-    trials = []
-    for i in range(num_trials):
-        print('trial number {}'.format(i))
-        # trials.append(clean_room(num_robots, speed, room, min_coverage_tiles))
-        trials.append()
-
-    return sum(trials) / len(trials)
-'''
-
-'''
-    # def clean_room(num_robots, speed, room, min_coverage_tiles):
     def clean_room():
-        clock_ticks = 0
+        # place room inside clean room in order to reset
+        room = RectangularRoom(width, height)
+        min_coverage_tiles = int(min_coverage * room.getNumTiles())
+
+        # init robot list
         robots = []
-        for x in range(num_robots):
-            clock_ticks += 1
-            robots[x] = robot_type(room, speed)
-            print('Robot {} is of type {}'.format(x, type(robots[x])))
-            print('clock ticks to init robots {}'.format(clock_ticks))
-        print(robots)
-        while room.getNumCleanedTiles()/room.getNumTiles() < min_coverage_tiles:
+        for i in range(num_robots):
+            robots.append(i)
+        for i in range(len(robots)):
+            # robots[i] = StandardRobot(room, speed)
+            robots[i] = robot_type(room, speed)
+
+        clock_ticks = 0
+        while room.getNumCleanedTiles() < min_coverage_tiles:
             for robot in robots:
                 robot.updatePositionAndClean()
-                print("...Still cleaning " + str(clock_ticks))
-                clock_ticks += 1
+            clock_ticks += 1
         return clock_ticks
-'''
 
+    trials = []
+    for i in range(num_trials):
+        trials.append(clean_room())
+        print('trial: {}  time: {}'.format(i, trials[-1]))
+    print('avg time {}'.format(sum(trials) / len(trials)))
 
 
 # Uncomment this line to see how much your simulation takes on average
-# print(runSimulation(1, 1.0, 10, 10, 0.75, 30, StandardRobot))
-print(runSimulation(1, 1.0, 4, 3, 0.75, 30, StandardRobot))
+print(runSimulation(1, 1.0, 20, 20, 1.0, 10, StandardRobot))
+print(runSimulation(3, 1.0, 20, 20, 1.0, 10, StandardRobot))
 
 
 # === Problem 5
